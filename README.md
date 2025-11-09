@@ -1,6 +1,13 @@
 # T-Mobile Feed Simulator
 
-This project simulates a social media feed of customer experiences with T-Mobile, using the OpenRouter API to generate tweets.
+This project simulates a social media feed of customer experiences with T-Mobile, using a dual-model approach with the OpenRouter API.
+
+## Features
+
+*   **Tweet Generation:** Uses the `google/gemini-2.5-flash` model to generate realistic tweets.
+*   **Sentiment Analysis:** Uses the `nvidia/nemotron-nano-9b-v2` model to classify each tweet as positive, negative, or neutral.
+*   **Live Feed:** Displays the last 4 tweets and their sentiment, updating every 30 seconds.
+*   **Logging:** All generated tweets and their classifications are logged to `tweet_log.txt`.
 
 ## Setup
 
