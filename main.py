@@ -32,7 +32,7 @@ def generate_tweet_with_gemini(sentiment_prompt, history):
         return "Error: GEMINI_API_KEY not found in .env file."
 
     try:
-        model = genai.GenerativeModel('gemini-1.5-flash-latest')
+        model = genai.GenerativeModel('gemini-2.5-flash-lite')
         history_prompt = ""
         if history:
             history_prompt = "Do not repeat any of the following tweets:\n- " + "\n- ".join(history)
@@ -55,7 +55,7 @@ def choose_agents_with_nemotron():
             url="https://openrouter.ai/api/v1/chat/completions",
             headers={"Authorization": f"Bearer {OPENROUTER_API_KEY}"},
             data=json.dumps({
-                "model": "nvidia/nemotron-3-8b-instruct",
+                "model": "nvidia/nemotron-nano-9b-v2",
                 "messages": [
                     {"role": "user", "content": "You are a dispatcher. Choose between one and three of the following options: 'positive', 'negative', 'neutral'. Return your choices as a simple comma-separated list. For example: 'positive, negative' or 'neutral'."}
                 ]
