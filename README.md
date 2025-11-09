@@ -1,13 +1,21 @@
 # T-Mobile Feed Simulator
 
-This project simulates a social media feed of customer experiences with T-Mobile, using a dual-model approach.
+This project simulates a social media feed of customer experiences with T-Mobile, using an AI-driven, agent-based architecture.
+
+## Architecture
+
+This simulator uses two AI models in a router-agent setup:
+
+1.  **Nemotron (Router):** The `nvidia/nemotron-nano-9b-v2` model, accessed via the OpenRouter API, acts as a dispatcher. Every 30 seconds, it chooses which type of tweet(s) to generate, selecting between one and three of the following sentiments: "positive", "negative", or "neutral".
+
+2.  **Gemini (Agent):** The `gemini-1.5-flash` model, accessed directly via the Google Gemini SDK, acts as the content generation agent. Based on the choice(s) from the Nemotron router, it will generate a tweet for each selected sentiment.
 
 ## Features
 
-*   **Tweet Generation:** Uses the Google Gemini API directly via the `google-generativeai` SDK with the `gemini-1.5-flash` model to generate realistic tweets.
-*   **Sentiment Analysis:** Uses the `nvidia/nemotron-nano-9b-v2` model via the OpenRouter API to classify each tweet as positive, negative, or neutral.
-*   **Live Feed:** Displays the last 4 tweets and their sentiment, updating every 30 seconds.
-*   **Logging:** All generated tweets and their classifications are logged to `tweet_log.txt`.
+*   **AI-Powered Dispatcher:** Nemotron dynamically decides the sentiment of the feed at each update.
+*   **Targeted Content Generation:** Gemini creates tweets based on the dispatcher's instructions.
+*   **Live Feed:** Displays up to 3 new tweets every 30 seconds, showing only the latest generated content.
+*   **Logging:** The chosen sentiments and the resulting tweets from each cycle are logged to `tweet_log.txt`.
 
 ## Setup
 

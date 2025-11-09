@@ -14,7 +14,16 @@ GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 if GEMINI_API_KEY:
     genai.configure(api_key=GEMINI_API_KEY)
 
-def generate_tweet_with_gemini():
+def generate_positive_tweet():
+    return generate_tweet_with_gemini("a positive")
+
+def generate_negative_tweet():
+    return generate_tweet_with_gemini("a negative")
+
+def generate_neutral_tweet():
+    return generate_tweet_with_gemini("a neutral or informational")
+
+def generate_tweet_with_gemini(sentiment_prompt):
     """
     Generates a tweet about T-Mobile customer experience using the Gemini SDK.
     """
@@ -23,17 +32,18 @@ def generate_tweet_with_gemini():
 
     try:
         model = genai.GenerativeModel('gemini-1.5-flash')
-        response = model.generate_content("Write a short, realistic tweet about a customer's experience with T-Mobile, either positive or negative. Keep it under 280 characters.")
+        prompt = f"Write a short, realistic tweet about a customer's {sentiment_prompt} experience with T-Mobile. Keep it under 280 characters."
+        response = model.generate_content(prompt)
         return response.text.strip()
     except Exception as e:
         return f"An unexpected error occurred with the Gemini API: {e}"
 
-def classify_tweet_with_nemotron(tweet_text):
+def choose_agents_with_nemotron():
     """
-    Classifies the sentiment of a tweet using the Nemotron model via OpenRouter.
+    Uses Nemotron to choose which type of tweets to generate.
     """
     if not OPENROUTER_API_KEY:
-        return "Classification Error: OPENROUTER_API_KEY not found."
+        return ["Error: OPENROUTER_API_KEY not found."]
 
     try:
         response = requests.post(
@@ -42,44 +52,48 @@ def classify_tweet_with_nemotron(tweet_text):
             data=json.dumps({
                 "model": "nvidia/nemotron-nano-9b-v2",
                 "messages": [
-                    {"role": "user", "content": f"Classify the following tweet as 'positive', 'negative', or 'neutral'. Tweet: \"{tweet_text}\""}
+                    {"role": "user", "content": "You are a dispatcher. Choose between one and three of the following options: 'positive', 'negative', 'neutral'. Return your choices as a simple comma-separated list. For example: 'positive, negative' or 'neutral'."}
                 ]
             })
         )
         response.raise_for_status()
         data = response.json()
-        return data['choices'][0]['message']['content'].strip()
-    except requests.exceptions.RequestException as e:
-        return f"Classification Error: {e}"
-    except (KeyError, IndexError):
-        return "Classification Error: Could not parse response."
+        choices = data['choices'][0]['message']['content'].strip().lower().split(',')
+        return [choice.strip() for choice in choices]
     except Exception as e:
-        return f"An unexpected classification error occurred: {e}"
+        return [f"An unexpected error occurred with the Nemotron API: {e}"]
 
 def main():
     """
     Main function to run the T-Mobile feed simulator.
     """
-    tweets = []
+    agent_functions = {
+        "positive": generate_positive_tweet,
+        "negative": generate_negative_tweet,
+        "neutral": generate_neutral_tweet
+    }
+
     while True:
         os.system('clear' if os.name == 'posix' else 'cls')
         print("--- T-Mobile Customer Experience Feed ---")
 
-        new_tweet_content = generate_tweet_with_gemini()
-        sentiment = "N/A"
-        if "Error:" not in new_tweet_content:
-            sentiment = classify_tweet_with_nemotron(new_tweet_content)
+        chosen_agents = choose_agents_with_nemotron()
+        generated_tweets = []
+
+        for agent in chosen_agents:
+            if agent in agent_functions:
+                tweet = agent_functions[agent]()
+                generated_tweets.append((agent, tweet))
+                print(f"-> [{agent.capitalize()}] {tweet}\n")
+            else:
+                generated_tweets.append(("error", agent))
+                print(f"-> [Error] Invalid agent choice from Nemotron: {agent}\n")
 
         with open("tweet_log.txt", "a", encoding="utf-8") as f:
-            f.write(f"[{time.strftime('%Y-%m-%d %H:%M:%S')}] [Sentiment: {sentiment}] {new_tweet_content}\n")
-
-        tweets.insert(0, (new_tweet_content, sentiment))
-
-        if len(tweets) > 4:
-            tweets.pop()
-
-        for content, sentiment in tweets:
-            print(f"-> {content}\n   [Sentiment: {sentiment}]\n")
+            log_entry = f"[{time.strftime('%Y-%m-%d %H:%M:%S')}] Chosen Agents: {', '.join(chosen_agents)}\n"
+            for agent, tweet in generated_tweets:
+                log_entry += f"  - [{agent.capitalize()}]: {tweet}\n"
+            f.write(log_entry + "\n")
 
         print("---         Updating in 30 seconds         ---")
         time.sleep(30)
