@@ -3,45 +3,37 @@ import time
 import requests
 import json
 from dotenv import load_dotenv
+import google.generativeai as genai
 
 load_dotenv()
 
+# Configure APIs
 OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+
+if GEMINI_API_KEY:
+    genai.configure(api_key=GEMINI_API_KEY)
 
 def generate_tweet_with_gemini():
     """
-    Generates a tweet about T-Mobile customer experience using the Gemini model.
+    Generates a tweet about T-Mobile customer experience using the Gemini SDK.
     """
-    if not OPENROUTER_API_KEY:
-        return "Error: OPENROUTER_API_KEY not found in .env file."
+    if not GEMINI_API_KEY:
+        return "Error: GEMINI_API_KEY not found in .env file."
 
     try:
-        response = requests.post(
-            url="https://openrouter.ai/api/v1/chat/completions",
-            headers={"Authorization": f"Bearer {OPENROUTER_API_KEY}"},
-            data=json.dumps({
-                "model": "google/gemini-2.5-flash",
-                "messages": [
-                    {"role": "user", "content": "Write a short, realistic tweet about a customer's experience with T-Mobile, either positive or negative. Keep it under 280 characters."}
-                ]
-            })
-        )
-        response.raise_for_status()
-        data = response.json()
-        return data['choices'][0]['message']['content'].strip()
-    except requests.exceptions.RequestException as e:
-        return f"Error connecting to OpenRouter: {e}"
-    except (KeyError, IndexError):
-        return "Error: Could not parse response from OpenRouter."
+        model = genai.GenerativeModel('gemini-1.5-flash')
+        response = model.generate_content("Write a short, realistic tweet about a customer's experience with T-Mobile, either positive or negative. Keep it under 280 characters.")
+        return response.text.strip()
     except Exception as e:
-        return f"An unexpected error occurred: {e}"
+        return f"An unexpected error occurred with the Gemini API: {e}"
 
 def classify_tweet_with_nemotron(tweet_text):
     """
-    Classifies the sentiment of a tweet using the Nemotron model.
+    Classifies the sentiment of a tweet using the Nemotron model via OpenRouter.
     """
     if not OPENROUTER_API_KEY:
-        return "Classification Error: API key not found."
+        return "Classification Error: OPENROUTER_API_KEY not found."
 
     try:
         response = requests.post(
@@ -78,13 +70,11 @@ def main():
         if "Error:" not in new_tweet_content:
             sentiment = classify_tweet_with_nemotron(new_tweet_content)
 
-        # Log the tweet and sentiment to a file
-        with open("tweet_log.txt", "a") as f:
+        with open("tweet_log.txt", "a", encoding="utf-8") as f:
             f.write(f"[{time.strftime('%Y-%m-%d %H:%M:%S')}] [Sentiment: {sentiment}] {new_tweet_content}\n")
 
         tweets.insert(0, (new_tweet_content, sentiment))
 
-        # Limit the number of tweets to 4
         if len(tweets) > 4:
             tweets.pop()
 

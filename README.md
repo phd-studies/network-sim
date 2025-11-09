@@ -1,11 +1,11 @@
 # T-Mobile Feed Simulator
 
-This project simulates a social media feed of customer experiences with T-Mobile, using a dual-model approach with the OpenRouter API.
+This project simulates a social media feed of customer experiences with T-Mobile, using a dual-model approach.
 
 ## Features
 
-*   **Tweet Generation:** Uses the `google/gemini-2.5-flash` model to generate realistic tweets.
-*   **Sentiment Analysis:** Uses the `nvidia/nemotron-nano-9b-v2` model to classify each tweet as positive, negative, or neutral.
+*   **Tweet Generation:** Uses the Google Gemini API directly via the `google-generativeai` SDK with the `gemini-1.5-flash` model to generate realistic tweets.
+*   **Sentiment Analysis:** Uses the `nvidia/nemotron-nano-9b-v2` model via the OpenRouter API to classify each tweet as positive, negative, or neutral.
 *   **Live Feed:** Displays the last 4 tweets and their sentiment, updating every 30 seconds.
 *   **Logging:** All generated tweets and their classifications are logged to `tweet_log.txt`.
 
@@ -24,9 +24,10 @@ This project simulates a social media feed of customer experiences with T-Mobile
     ```bash
     pip install -r requirements.txt
     ```
-5.  **Create a `.env` file** in the root directory and add your OpenRouter API key:
+5.  **Create a `.env` file** in the root directory and add your API keys:
     ```
-    OPENROUTER_API_KEY=your_api_key_here
+    OPENROUTER_API_KEY=your_openrouter_api_key_here
+    GEMINI_API_KEY=your_gemini_api_key_here
     ```
 
 ## Running the Simulator
