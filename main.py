@@ -31,7 +31,7 @@ def generate_tweet_with_gemini(sentiment_prompt):
         return "Error: GEMINI_API_KEY not found in .env file."
 
     try:
-        model = genai.GenerativeModel('gemini-1.5-flash')
+        model = genai.GenerativeModel('gemini-2.5-flash-lite')
         prompt = f"Write a short, realistic tweet about a customer's {sentiment_prompt} experience with T-Mobile. Keep it under 280 characters."
         response = model.generate_content(prompt)
         return response.text.strip()
