@@ -17,7 +17,7 @@ This project simulates a social media feed of customer experiences with T-Mobile
     ```bash
     pip install -r requirements.txt
     ```
-5.  **Create a `.env` file** in the `t_mobile_feed_simulator` directory and add your OpenRouter API key:
+5.  **Create a `.env` file** in the root directory and add your OpenRouter API key:
     ```
     OPENROUTER_API_KEY=your_api_key_here
     ```
@@ -27,5 +27,5 @@ This project simulates a social media feed of customer experiences with T-Mobile
 To start the feed simulator, run the `main.py` script:
 
 ```bash
-python3 t_mobile_feed_simulator/main.py
+python3 main.py
 ```

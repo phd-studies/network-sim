@@ -28,7 +28,7 @@ def generate_tweet():
                 ]
             })
         )
-        response.raise_for_status()  # Raise an exception for bad status codes
+        response.raise_for_status()
         data = response.json()
         return data['choices'][0]['message']['content'].strip()
     except requests.exceptions.RequestException as e:
@@ -42,12 +42,18 @@ def main():
     """
     Main function to run the T-Mobile feed simulator.
     """
+    tweets = []
     while True:
         os.system('clear' if os.name == 'posix' else 'cls')
         print("--- T-Mobile Customer Experience Feed ---")
-        tweet = generate_tweet()
-        print(f"-> {tweet}")
-        print("\n---         Updating in 5 seconds         ---")
+
+        new_tweet = generate_tweet()
+        tweets.insert(0, new_tweet)
+
+        for tweet in tweets:
+            print(f"-> {tweet}\n")
+
+        print("---         Updating in 5 seconds         ---")
         time.sleep(5)
 
 if __name__ == "__main__":
