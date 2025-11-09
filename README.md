@@ -6,15 +6,15 @@ This project simulates a social media feed of customer experiences with T-Mobile
 
 This simulator uses two AI models in a router-agent setup:
 
-1.  **Nemotron (Router):** The `nvidia/nemotron-nano-9b-v2` model, accessed via the OpenRouter API, acts as a dispatcher. Every 30 seconds, it chooses which type of tweet(s) to generate, selecting between one and three of the following sentiments: "positive", "negative", or "neutral".
+1.  **Nemotron (Router):** The `nvidia/nemotron-3-8b-instruct` model, accessed via the OpenRouter API, acts as a dispatcher. It chooses which type of tweet(s) to generate, selecting between "positive", "negative", or "neutral" sentiments.
 
-2.  **Gemini (Agent):** The `gemini-1.5-flash` model, accessed directly via the Google Gemini SDK, acts as the content generation agent. Based on the choice(s) from the Nemotron router, it will generate a tweet for each selected sentiment.
+2.  **Gemini (Agent):** The `gemini-1.5-flash-latest` model, accessed directly via the Google Gemini SDK, acts as the content generation agent. Based on the choice(s) from the Nemotron router, it will generate tweets for the selected sentiments.
 
 ## Features
 
-*   **AI-Powered Dispatcher:** Nemotron dynamically decides the sentiment of the feed at each update.
-*   **Targeted Content Generation:** Gemini creates tweets based on the dispatcher's instructions.
-*   **Live Feed:** Displays up to 3 new tweets every 30 seconds, showing only the latest generated content.
+*   **AI-Powered Dispatcher:** Nemotron dynamically decides the available sentiments for each generation cycle.
+*   **Targeted Content Generation:** Gemini creates tweets based on the dispatcher's instructions, with a mechanism to encourage variety and avoid repetition.
+*   **High-Volume Live Feed:** Displays a random number of new tweets (2-6) every 15 seconds, showing only the latest generated content.
 *   **Logging:** The chosen sentiments and the resulting tweets from each cycle are logged to `tweet_log.txt`.
 
 ## Setup
